@@ -21,8 +21,12 @@ static const char *title = "Moving particles";
 #define Z_NEAR 10
 #define Z_FAR 100
 #define Z_MID ((Z_FAR - Z_NEAR)/2)
+
 #define R_MIN 17
 #define R_MAX 23
+
+#define NEAR_COLOR (Color){ 255, 109, 194, 255 }
+#define FAR_COLOR (Color){ 200, 30, 104, 255 }
 
 #define A ((R_MIN - (float)R_MAX)/(Z_FAR - Z_NEAR))
 #define B (R_MIN - Z_FAR*A)
@@ -73,7 +77,7 @@ int main()
                 Vector3 *pos = &state.positions[i];
                 float z = (*pos).z;
                 float r = A*z + B;
-                Color color = (z > Z_MID) ? GRAY : WHITE;
+                Color color = (z > Z_MID) ? FAR_COLOR : NEAR_COLOR;
                 DrawRectangle((*pos).x, (*pos).y, r, r, color);
             }
         EndDrawing();
