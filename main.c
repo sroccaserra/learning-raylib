@@ -31,9 +31,13 @@ static const char *title = "Moving particles";
 #define A ((R_MIN - (float)R_MAX)/(Z_FAR - Z_NEAR))
 #define B (R_MIN - Z_FAR*A)
 
+struct particule {
+    float phase;
+    Vector3 position;
+};
+
 struct state {
-    Vector3 positions[NB_PARTICLES];
-    float phases[NB_PARTICLES];
+    struct particule particules[NB_PARTICLES];
 };
 
 #define x_phase(phase) (CENTER_X*(1+sin(phase)))
@@ -41,24 +45,33 @@ struct state {
 
 void init(struct state *s) {
     for (int i = 0; i < NB_PARTICLES; ++i) {
+        struct particule *p = &s->particules[i];
         float phase = (2*M_PI*rand())/RAND_MAX;
-        s->phases[i] = phase;
+        p->phase = phase;
 
         float x = x_phase(phase);
         float y = rand()%H;
         float z = z_phase(phase);
-        s->positions[i] = (Vector3){x, y, z};
+        p->position = (Vector3){x, y, z};
     }
+}
+
+int cmp_z(const void *a, const void *b) {
+    struct particule *lhs = (struct particule *)a;
+    struct particule *rhs = (struct particule *)b;
+    return rhs->position.z - lhs->position.z;
 }
 
 void update(struct state *s) {
     for (int i = 0; i < NB_PARTICLES; ++i) {
-        Vector3 *pos = &s->positions[i];
-        s->phases[i] += 0.015;
-        float phase = s->phases[i];
+        struct particule *p = &s->particules[i];
+        Vector3 *pos = &p->position;
+        p->phase += 0.015;
+        float phase = p->phase;
         pos->x = x_phase(phase);
         pos->z = z_phase(phase+M_PI/2);
     }
+    qsort(s->particules, NB_PARTICLES, sizeof(struct particule), cmp_z);
 }
 
 int main()
@@ -74,7 +87,8 @@ int main()
         BeginDrawing();
             ClearBackground(BLACK);
             for (int i = 0; i < NB_PARTICLES; ++i) {
-                Vector3 *pos = &state.positions[i];
+                struct particule *p = &state.particules[i];
+                Vector3 *pos = &p->position;
                 float z = (*pos).z;
                 float r = A*z + B;
                 Color color = (z > Z_MID) ? FAR_COLOR : NEAR_COLOR;
