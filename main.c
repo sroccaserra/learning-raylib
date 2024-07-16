@@ -4,6 +4,7 @@
 #define H 450
 #define FPS 60
 
+static const char *title = "raylib [core] example - basic window";
 static char *default_text = "Congrats! You created your first window!";
 
 void draw_text(char *text, int x, int y) {
@@ -12,7 +13,7 @@ void draw_text(char *text, int x, int y) {
 
 int main()
 {
-    InitWindow(W, H, "raylib [core] example - basic window");
+    InitWindow(W, H, title);
     SetTargetFPS(FPS);
 
     while (!WindowShouldClose())
