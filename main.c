@@ -20,8 +20,9 @@ static const char *title = "Moving particles";
 #define NB_PARTICLES 120
 #define Z_NEAR 10
 #define Z_FAR 100
-#define R_MIN 10
-#define R_MAX 30
+#define Z_MID ((Z_FAR - Z_NEAR)/2)
+#define R_MIN 17
+#define R_MAX 23
 
 #define A ((R_MIN - (float)R_MAX)/(Z_FAR - Z_NEAR))
 #define B (R_MIN - Z_FAR*A)
@@ -32,6 +33,7 @@ struct state {
 };
 
 #define x_phase(phase) (CENTER_X*(1+sin(phase)))
+#define z_phase(phase) (Z_NEAR + (Z_FAR - Z_NEAR)*sin(phase))
 
 void init(struct state *s) {
     for (int i = 0; i < NB_PARTICLES; ++i) {
@@ -40,7 +42,7 @@ void init(struct state *s) {
 
         float x = x_phase(phase);
         float y = rand()%H;
-        float z = Z_NEAR + rand()%(Z_FAR - Z_NEAR);
+        float z = z_phase(phase);
         s->positions[i] = (Vector3){x, y, z};
     }
 }
@@ -51,6 +53,7 @@ void update(struct state *s) {
         s->phases[i] += 0.015;
         float phase = s->phases[i];
         pos->x = x_phase(phase);
+        pos->z = z_phase(phase+M_PI/2);
     }
 }
 
@@ -68,8 +71,10 @@ int main()
             ClearBackground(BLACK);
             for (int i = 0; i < NB_PARTICLES; ++i) {
                 Vector3 *pos = &state.positions[i];
-                float r = A*(*pos).z + B;
-                DrawRectangle((*pos).x, (*pos).y, r, r, WHITE);
+                float z = (*pos).z;
+                float r = A*z + B;
+                Color color = (z > Z_MID) ? GRAY : WHITE;
+                DrawRectangle((*pos).x, (*pos).y, r, r, color);
             }
         EndDrawing();
         update(&state);
