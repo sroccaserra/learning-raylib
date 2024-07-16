@@ -1,14 +1,25 @@
 #include "raylib.h"
 
-int main(void)
+#define W 800
+#define H 450
+#define FPS 60
+
+static char *default_text = "Congrats! You created your first window!";
+
+void draw_text(char *text, int x, int y) {
+    DrawText(text, x, y, 20, LIGHTGRAY);
+}
+
+int main()
 {
-    InitWindow(800, 450, "raylib [core] example - basic window");
+    InitWindow(W, H, "raylib [core] example - basic window");
+    SetTargetFPS(FPS);
 
     while (!WindowShouldClose())
     {
         BeginDrawing();
             ClearBackground(RAYWHITE);
-            DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
+            draw_text(default_text, 190, 200);
         EndDrawing();
     }
 
