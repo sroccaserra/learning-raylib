@@ -94,48 +94,53 @@ void draw_quad(Vector3 a, Vector3 b, Vector3 c, Vector3 d, Color color) {
     DrawTriangle3D(c, d, a, color);
 }
 
+void draw_3D_scene(struct state *s) {
+    BeginMode3D(s->camera);
+
+    Vector3 pos = {0};
+    DrawCube(pos, 2.0f, 2.0f, 2.0f, RED);
+    DrawCubeWires(pos, 2.0f, 2.0f, 2.0f, MAROON);
+
+    float r = 3.f;
+    Vector3 a = {0, 0, 0 },
+            b = {0, r, 0 },
+            c = {r, r, 0 },
+            d = {r, 0, 0 };
+    DrawGrid(100, .50f);
+    draw_quad(a, b, c, d, WHITE);
+
+    EndMode3D();
+}
+
+void draw_2D_scene(struct state *s) {
+    for (int i = 0; i < NB_PARTICLES; ++i) {
+        struct particule *p = &s->particules[i];
+        Vector3 *pos = &p->position;
+        float z = (*pos).z;
+        float r = (A*z + B);
+        Color color = (z > Z_MID) ? FAR_COLOR : NEAR_COLOR;
+        DrawRectangle((*pos).x, (*pos).y, r, r, color);
+    }
+}
+
 int main()
 {
     InitWindow(W, H, title);
     SetTargetFPS(FPS);
     struct state state = {0};
-
     init(&state);
 
     while (!WindowShouldClose())
     {
         BeginDrawing();
             ClearBackground(BLACK);
-
-            BeginMode3D(state.camera);
-                Vector3 pos = {0};
-                DrawCube(pos, 2.0f, 2.0f, 2.0f, RED);
-                //DrawCubeWires(pos, 2.0f, 2.0f, 2.0f, MAROON);
-
-                float r = 3.f;
-                Vector3 a = {0, 0, 0 },
-                        b = {0, r, 0 },
-                        c = {r, r, 0 },
-                        d = {r, 0, 0 };
-                DrawGrid(100, .50f);
-                draw_quad(a, b, c, d, WHITE);
-            EndMode3D();
-
-            for (int i = 0; i < NB_PARTICLES; ++i) {
-                struct particule *p = &state.particules[i];
-                Vector3 *pos = &p->position;
-                float z = (*pos).z;
-                float r = (A*z + B);
-                Color color = (z > Z_MID) ? FAR_COLOR : NEAR_COLOR;
-                DrawRectangle((*pos).x, (*pos).y, r, r, color);
-            }
-
+            draw_3D_scene(&state);
+            draw_2D_scene(&state);
         EndDrawing();
 
         update(&state);
     }
 
     CloseWindow();
-
     return 0;
 }
